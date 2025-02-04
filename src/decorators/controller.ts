@@ -17,7 +17,6 @@ import { REFLECT_ROUTES_KEY } from '../constants.js'
  */
 export const Controller = (pattern: string, prefix?: string) => {
   return (target: any) => {
-    console.log('Registering controller =>', pattern, prefix)
     const routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, target) || {}
 
     for (const key in routes) {
