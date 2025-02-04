@@ -21,8 +21,7 @@ export const Group = (pattern: string, prefix?: string) => {
 
     for (const key in routes) {
       routes[key].pattern = `${pattern}${routes[key].pattern}`
-      routes[key].name =
-        routes[key].name && prefix ? `${prefix}.${routes[key].name}` : routes[key].name
+      if (routes[key].name && prefix) routes[key].name = `${prefix}.${routes[key].name}`
     }
 
     Reflect.defineMetadata(REFLECT_ROUTES_KEY, routes, target)
