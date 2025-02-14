@@ -1,8 +1,16 @@
 <div align="center">
   <a href="https://discord.gg/UvcuprRbTC">
-    <img src="https://dcbadge.vercel.app/api/server/UvcuprRbTC)](https://discord.gg/UvcuprRbTC">
+    <img src="https://dcbadge.vercel.app/api/server/UvcuprRbTC">
   </a>
 </div>
+
+</br>
+</br>
+
+![Statements](https://img.shields.io/badge/statements-97.65%25-brightgreen.svg?style=flat)
+![Branches](https://img.shields.io/badge/branches-89.74%25-yellow.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-96.42%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-97.65%25-brightgreen.svg?style=flat)
 
 # Girouette
 

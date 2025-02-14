@@ -69,10 +69,10 @@ export default class GirouetteProvider {
   /**
    * Starts the provider by initializing the router and registering all routes
    */
-  async start() {
+  async start(controllersPath: string = join(cwd(), 'app')) {
     this.#router = await this.app.container.make('router')
     this.#logger = await this.app.container.make('logger')
-    await this.#scanControllersDirectory(join(cwd(), 'app'))
+    await this.#scanControllersDirectory(controllersPath)
   }
 
   /**
