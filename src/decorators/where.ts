@@ -36,16 +36,14 @@ import { REFLECT_ROUTES_KEY } from '../constants.js'
  */
 export const Where = (key: string, matcher: RouteMatcher | string | RegExp) => {
   return (target: any, propertyKey: string) => {
-    let routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, target) || {}
-    const newWhere = { key, matcher }
+    const routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, target.constructor) || {}
     if (!routes[propertyKey]) {
       routes[propertyKey] = {}
     }
     if (!routes[propertyKey].where) {
-      routes[propertyKey].where = [newWhere]
-    } else {
-      routes[propertyKey].where.push(newWhere)
+      routes[propertyKey].where = []
     }
-    Reflect.defineMetadata(REFLECT_ROUTES_KEY, routes, target)
+    routes[propertyKey].where.push({ key, matcher })
+    Reflect.defineMetadata(REFLECT_ROUTES_KEY, routes, target.constructor)
   }
 }

@@ -15,8 +15,14 @@ import {
   REFLECT_RESOURCE_MIDDLEWARE_KEY,
   REFLECT_RESOURCE_NAME_KEY,
   REFLECT_ROUTES_KEY,
+  REFLECT_GROUP_KEY,
+  REFLECT_GROUP_MIDDLEWARE_KEY,
+  REFLECT_GROUP_DOMAIN_KEY,
 } from '../src/constants.js'
 
+/**
+ * Represents a route configuration within the Girouette system
+ */
 type GirouetteRoute = {
   method: string
   pattern: string
@@ -25,78 +31,233 @@ type GirouetteRoute = {
   middleware: OneOrMore<MiddlewareFn | ParsedNamedMiddleware>[]
 }
 
+/**
+ * Represents group configuration metadata
+ */
+type GroupMetadata = {
+  name?: string
+}
+
+/**
+ * The GirouetteProvider is responsible for registering all decorated routes with AdonisJS.
+ * It scans the application's controllers directory and processes route decorators,
+ * resource decorators, and group configurations.
+ *
+ * @example
+ * ```ts
+ * // In your adonisrc.ts
+ * providers: [
+ *   () => import('@adonisjs/core/providers/app_provider'),
+ *   () => import('./providers/girouette_provider')
+ * ]
+ * ```
+ */
 export default class GirouetteProvider {
   #router: HttpRouterService | null = null
 
   constructor(protected app: ApplicationService) {}
 
+  /**
+   * Starts the provider by initializing the router and registering all routes
+   */
   async start() {
     this.#router = await this.app.container.make('router')
-    await this.#register(join(cwd(), 'app'))
+    await this.#scanControllersDirectory(join(cwd(), 'app'))
   }
 
-  async #register(directory: string) {
+  /**
+   * Recursively scans the directory for controller files and registers their routes
+   */
+  async #scanControllersDirectory(directory: string) {
     const files = await readdir(directory, { withFileTypes: true })
+
     for (const file of files) {
       const fullPath = join(directory, file.name)
+
       if (file.isDirectory()) {
-        await this.#register(fullPath)
-      } else if (
-        file.isFile() &&
-        (file.name.endsWith('_controller.ts') || file.name.endsWith('_controller.js'))
-      ) {
-        const controller = await import(pathToFileURL(fullPath).href)
-        const routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, controller.default)
-        if (routes) {
-          for (const route in routes) {
-            this.#registerRoute(controller, route, routes[route])
-          }
-        }
-        this.#registerResource(controller)
+        await this.#scanControllersDirectory(fullPath)
+        continue
+      }
+
+      if (this.#isControllerFile(file.name)) {
+        await this.#processControllerFile(fullPath)
       }
     }
   }
 
-  #registerRoute(controller: any, controllerMethodName: string, route: GirouetteRoute) {
-    const { method, pattern, name, where, middleware } = route
-    const adonisRoute = this.#router!.route(
-      pattern,
-      [method],
-      [controller.default, controllerMethodName]
-    )
-    if (name) {
-      adonisRoute.as(name)
-    }
-    if (where) {
-      for (const w of where) {
-        adonisRoute.where(w.key, w.matcher)
-      }
-    }
-    if (middleware) {
-      for (const m of middleware) {
-        adonisRoute.use(m)
-      }
+  /**
+   * Checks if a file is a controller file based on its name
+   */
+  #isControllerFile(fileName: string): boolean {
+    return fileName.endsWith('_controller.ts') || fileName.endsWith('_controller.js')
+  }
+
+  /**
+   * Processes a controller file by importing it and registering its routes
+   */
+  async #processControllerFile(filePath: string) {
+    const controller = await import(pathToFileURL(filePath).href)
+
+    this.#registerControllerRoutes(controller)
+    this.#registerResourceRoutes(controller)
+  }
+
+  /**
+   * Registers all decorated routes from a controller
+   */
+  #registerControllerRoutes(controller: any) {
+    const routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, controller.default)
+    if (!routes) return
+
+    for (const methodName in routes) {
+      this.#registerSingleRoute(controller, methodName, routes[methodName])
     }
   }
 
-  #registerResource(controller: any) {
+  /**
+   * Registers a single route with the AdonisJS router, applying any group configurations
+   */
+  #registerSingleRoute(controller: any, methodName: string, route: GirouetteRoute) {
+    const group = Reflect.getMetadata(REFLECT_GROUP_KEY, controller.default) as
+      | GroupMetadata
+      | undefined
+    const groupMiddleware = Reflect.getMetadata(
+      REFLECT_GROUP_MIDDLEWARE_KEY,
+      controller.default
+    ) as OneOrMore<MiddlewareFn | ParsedNamedMiddleware> | undefined
+    const groupDomain = Reflect.getMetadata(REFLECT_GROUP_DOMAIN_KEY, controller.default) as
+      | string
+      | undefined
+
+    const finalRoute = this.#applyGroupConfiguration(route, group, groupMiddleware)
+
+    const adonisRoute = this.#createRoute(finalRoute, controller, methodName)
+    this.#configureRoute(adonisRoute, finalRoute, groupDomain)
+  }
+
+  /**
+   * Applies group configuration to a route
+   */
+  #applyGroupConfiguration(
+    route: GirouetteRoute,
+    group?: GroupMetadata,
+    groupMiddleware?: OneOrMore<MiddlewareFn | ParsedNamedMiddleware>
+  ) {
+    if (!group && !groupMiddleware) return route
+
+    return {
+      ...route,
+      name: group?.name ? this.#prefixRouteName(route.name, group.name) : route.name,
+      middleware: this.#mergeMiddleware(route.middleware, groupMiddleware),
+    }
+  }
+
+  /**
+   * Prefixes a route name with a group prefix
+   */
+  #prefixRouteName(name: string, prefix: string): string {
+    return name ? `${prefix}.${name}` : name
+  }
+
+  /**
+   * Merges route-specific middleware with group middleware
+   */
+  #mergeMiddleware(
+    routeMiddleware: OneOrMore<MiddlewareFn | ParsedNamedMiddleware>[],
+    groupMiddleware?: OneOrMore<MiddlewareFn | ParsedNamedMiddleware>
+  ) {
+    const middleware = [...(routeMiddleware || [])]
+    if (groupMiddleware) {
+      if (Array.isArray(groupMiddleware)) {
+        middleware.unshift(...groupMiddleware)
+      } else {
+        middleware.unshift(groupMiddleware)
+      }
+    }
+    return middleware
+  }
+
+  /**
+   * Creates a new route in the AdonisJS router
+   */
+  #createRoute(route: GirouetteRoute, controller: any, methodName: string) {
+    return this.#router!.route(route.pattern, [route.method], [controller.default, methodName])
+  }
+
+  /**
+   * Configures a route with its name, constraints, middleware and domain
+   */
+  #configureRoute(adonisRoute: any, route: GirouetteRoute, domain?: string) {
+    if (route.name) {
+      adonisRoute.as(route.name)
+    }
+
+    if (route.where?.length) {
+      this.#applyRouteConstraints(adonisRoute, route.where)
+    }
+
+    if (route.middleware?.length) {
+      this.#applyRouteMiddleware(adonisRoute, route.middleware)
+    }
+
+    if (domain) {
+      adonisRoute.domain(domain)
+    }
+  }
+
+  /**
+   * Applies route constraints (where clauses)
+   */
+  #applyRouteConstraints(route: any, constraints: GirouetteRoute['where']) {
+    for (const { key, matcher } of constraints) {
+      route.where(key, matcher)
+    }
+  }
+
+  /**
+   * Applies middleware to a route
+   */
+  #applyRouteMiddleware(route: any, middleware: GirouetteRoute['middleware']) {
+    for (const m of middleware) {
+      route.use(m)
+    }
+  }
+
+  /**
+   * Registers resource routes for a controller
+   */
+  #registerResourceRoutes(controller: any) {
     const resourcePattern = Reflect.getMetadata(REFLECT_RESOURCE_KEY, controller.default)
-    if (!resourcePattern) {
-      return
-    }
+    if (!resourcePattern) return
+
     const resource = this.#router!.resource(resourcePattern, controller.default)
+    this.#configureResource(resource, controller)
+  }
+
+  /**
+   * Configures a resource with its name and middleware
+   */
+  #configureResource(resource: any, controller: any) {
     const resourceName = Reflect.getMetadata(REFLECT_RESOURCE_NAME_KEY, controller.default)
     if (resourceName) {
       resource.as(resourceName)
     }
+
     const resourceMiddleware = Reflect.getMetadata(
       REFLECT_RESOURCE_MIDDLEWARE_KEY,
       controller.default
     )
     if (resourceMiddleware) {
-      for (const { actions, middleware } of resourceMiddleware) {
-        resource.middleware(actions, middleware)
-      }
+      this.#applyResourceMiddleware(resource, resourceMiddleware)
+    }
+  }
+
+  /**
+   * Applies middleware to resource routes
+   */
+  #applyResourceMiddleware(resource: any, middlewareConfig: any[]) {
+    for (const { actions, middleware } of middlewareConfig) {
+      resource.middleware(actions, middleware)
     }
   }
 }

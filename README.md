@@ -6,21 +6,23 @@
 
 # Girouette
 
-> An AdonisJS package allowing decorator-based routing.
+> Elegant decorator-based routing for AdonisJS v6
+
+## Introduction
+
+Girouette provides a beautiful, fluent API for defining your AdonisJS routes using decorators. By bringing route definitions closer to your controller methods, Girouette makes your application's routing more intuitive and maintainable.
 
 ## Installation
+
+You can install Girouette via the AdonisJS CLI:
 
 ```bash
 node ace add @softwarecitadel/girouette
 ```
 
-## Usage
+## Basic Routing
 
-Girouette allows you to define routes using decorators in your AdonisJS v6 controllers. This approach can make your route definitions more intuitive and keep them close to your controller methods.
-
-### Basic Usage
-
-To use Girouette decorators, import them in your controller file:
+After installation, you can start using decorators to define your routes. Import the decorators you need in your controller:
 
 ```typescript
 import {
@@ -31,33 +33,121 @@ import {
   Delete,
   Any,
   Middleware,
+  ResourceMiddleware,
+  GroupMiddleware,
   Resource,
   Where,
+  Group,
+  GroupDomain,
 } from '@softwarecitadel/girouette'
-```
-
-Then, you can use these decorators to define routes:
-
-```typescript
 import { HttpContext } from '@adonisjs/core/http'
-import { Get, Post } from '@softwarecitadel/girouette'
 
 export default class UsersController {
   @Get('/users')
   async index({ response }: HttpContext) {
-    // Handle GET request for /users
+    // Handle GET request
   }
 
   @Post('/users')
-  async store({ request, response }: HttpContext) {
-    // Handle POST request for /users
+  async store({ request }: HttpContext) {
+    // Handle POST request
   }
 }
 ```
 
-### Available Decorators
+## Route Groups
 
-#### HTTP Method Decorators
+Girouette provides several decorators for grouping routes:
+
+```typescript
+import { Group, GroupMiddleware, GroupDomain } from '@softwarecitadel/girouette'
+import { middleware } from '#start/kernel'
+
+@Group('admin') // Name prefix for routes
+@GroupMiddleware([middleware.auth()]) // Shared middleware
+@GroupDomain('admin.example.com') // Domain restriction
+export default class AdminController {
+  @Get('/admin/dashboard')
+  @Name('dashboard')
+  async index() {
+    // Route name: admin.dashboard
+    // Protected by auth middleware
+    // Only accessible via admin.example.com
+  }
+}
+```
+
+Each group decorator can be used independently:
+
+```typescript
+// Only name prefix
+@Group('api')
+export class ApiController {}
+
+// Only middleware
+@GroupMiddleware([middleware.auth()])
+export class SecureController {}
+
+// Only domain restriction
+@GroupDomain('api.example.com')
+export class ApiController {}
+```
+
+## Route Middleware
+
+You can protect your routes using middleware through the `Middleware` decorator:
+
+```typescript
+import { Get, Middleware } from '@softwarecitadel/girouette'
+import { middleware } from '#start/kernel'
+
+export default class UsersController {
+  @Get('/profile')
+  @Middleware([middleware.auth()])
+  async show({ auth }: HttpContext) {
+    // Only authenticated users can access this route
+  }
+}
+```
+
+## Resource Controllers
+
+For RESTful resources, Girouette provides a `Resource` decorator that automatically defines conventional routes:
+
+```typescript
+import { Resource } from '@softwarecitadel/girouette'
+
+@Resource('/posts', 'posts')
+export default class PostsController {
+  async index() {} // GET /posts
+  async create() {} // GET /posts/create
+  async store() {} // POST /posts
+  async show() {} // GET /posts/:id
+  async edit() {} // GET /posts/:id/edit
+  async update() {} // PUT/PATCH /posts/:id
+  async destroy() {} // DELETE /posts/:id
+}
+```
+
+## Route Constraints
+
+Use the `Where` decorator to add constraints to your route parameters:
+
+```typescript
+import { Get, Where } from '@softwarecitadel/girouette'
+
+export default class PostsController {
+  @Get('/posts/:slug')
+  @Where('slug', /^[a-z0-9-]+$/)
+  async show({ params }: HttpContext) {
+    // Only matches if slug contains lowercase letters, numbers, and hyphens
+  }
+}
+```
+
+## Available Decorators
+
+### HTTP Methods
 
 - `@Get(pattern: string, name?: string)`
 - `@Post(pattern: string, name?: string)`
@@ -66,82 +156,52 @@ export default class UsersController {
 - `@Delete(pattern: string, name?: string)`
 - `@Any(pattern: string, name?: string)`
 
-#### Middleware Decorator
+### Route Configuration
 
-```typescript
-import { middleware } from '#start/kernel'
-import { Get, Middleware } from '@softwarecitadel/girouette'
+- `@Group(name?: string)` - Define optional route name prefix
+- `@GroupDomain(domain: string)` - Restrict routes to a specific domain
+- `@GroupMiddleware(middleware: Middleware[])` - Apply middleware to all routes
+- `@Middleware(middleware: Middleware[])` - Apply middleware to a single route
+- `@Resource(pattern: string, name?: string)` - Create RESTful resource routes
+- `@ResourceMiddleware(actions: string | string[], middleware: Middleware[])` - Apply middleware to resource actions
+- `@Where(param: string, matcher: string | RegExp | Function)` - Add route parameter constraints
 
-export default class UsersController {
-  @Get('/admin/users')
-  @Middleware([middleware.auth()])
-  async adminIndex({ response }: HttpContext) {
-    // This route is protected by the auth middleware
-  }
-}
-```
+## Advanced Usage
 
-#### Resource Decorator
+### Combining Multiple Decorators
 
-```typescript
-import { Resource } from '@softwarecitadel/girouette'
-
-@Resource('/users', 'users')
-export default class UsersController {
-  // Implement index, show, store, update, and destroy methods
-}
-```
-
-#### Where Decorator
-
-```typescript
-import { Get, Where } from '@softwarecitadel/girouette'
-
-export default class PostsController {
-  @Get('/posts/:slug')
-  @Where('slug', (value) => /^[a-z0-9-]+$/.test(value))
-  async show({ params }: HttpContext) {
-    // This route will only match if the 'slug' parameter consists of lowercase letters, numbers, and hyphens
-  }
-}
-```
-
-### Advanced Usage
-
-#### Combining Decorators
-
-You can combine multiple decorators on a single method:
+Decorators can be combined to create sophisticated routing configurations:
 
 ```typescript
 import { Get, Middleware, Where } from '@softwarecitadel/girouette'
 import { middleware } from '#start/kernel'
 
-export default class PostsController {
-  @Get('/posts/:id')
+@Group('/api')
+export default class ArticlesController {
+  @Get('/articles/:id')
   @Middleware([middleware.auth()])
   @Where('id', /^\d+$/)
   async show({ params }: HttpContext) {
-    // This route is protected by auth middleware and only matches numeric IDs
+    // Protected route with parameter validation
   }
 }
 ```
 
-#### Resource Middleware
+### Resource Middleware
 
-You can apply middleware to all or specific actions of a resource:
+Apply middleware to specific resource actions:
 
 ```typescript
-import { Resource, ResourceMiddleware } from '@softwarecitedel/girouette'
+import { Resource, ResourceMiddleware } from '@softwarecitadel/girouette'
 import { middleware } from '#start/kernel'
 
 @Resource('/admin/posts', 'admin.posts')
 @ResourceMiddleware(['store', 'update', 'destroy'], [middleware.auth()])
 export default class AdminPostsController {
-  // Implement resource methods
-  // store, update, and destroy will be protected by auth middleware
+  // Only store, update, and destroy methods are protected
 }
 ```
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE.md).
+Girouette is open-sourced software licensed under the [MIT license](./LICENSE.md).

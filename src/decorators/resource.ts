@@ -1,27 +1,25 @@
 import { REFLECT_RESOURCE_KEY, REFLECT_RESOURCE_NAME_KEY } from '../constants.js'
 
 /**
- * Decorator for defining a resource in AdonisJS v6
- * This decorator is used to mark a controller class as a resource controller,
- * automatically setting up RESTful routes for the resource.
+ * The Resource decorator automatically defines RESTful routes for a controller.
  *
  * @param pattern The base URL pattern for the resource
- * @param name Optional name for the resource routes
- * @returns A decorator function
+ * @param name Optional name prefix for the resource routes
  *
  * @example
- * // In an AdonisJS v6 resource controller:
- * @Resource('/users')
- * export default class UsersController {
- *   // Resource methods (index, show, store, update, destroy) go here
- * }
- *
- * @example
- * // With a custom name:
+ * ```ts
  * @Resource('/posts', 'blog.posts')
  * export default class PostsController {
- *   // This will create named routes like 'blog.posts.index', 'blog.posts.show', etc.
+ *   // Generates routes:
+ *   // GET    /posts          (blog.posts.index)
+ *   // GET    /posts/create   (blog.posts.create)
+ *   // POST   /posts          (blog.posts.store)
+ *   // GET    /posts/:id      (blog.posts.show)
+ *   // GET    /posts/:id/edit (blog.posts.edit)
+ *   // PUT    /posts/:id      (blog.posts.update)
+ *   // DELETE /posts/:id      (blog.posts.destroy)
  * }
+ * ```
  */
 export const Resource = (pattern: string, name?: string) => {
   return (target: any) => {

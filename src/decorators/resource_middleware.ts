@@ -4,35 +4,7 @@ import {
   ParsedNamedMiddleware,
   ResourceActionNames,
 } from '@adonisjs/core/types/http'
-import { REFLECT_RESOURCE_MIDDLEWARE_KEY, REFLECT_ROUTES_KEY } from '../constants.js'
-
-/**
- * The RouteMiddleware decorator applies middleware to a specific route.
- *
- * @param middleware Middleware to apply to the route
- *
- * @example
- * ```ts
- * @Get('/profile')
- * @RouteMiddleware([middleware.auth()])
- * async show() {
- *   // Protected by auth middleware
- * }
- * ```
- */
-export const RouteMiddleware = (middleware: OneOrMore<MiddlewareFn | ParsedNamedMiddleware>) => {
-  return (target: any, key: string) => {
-    const routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, target.constructor) || {}
-    if (!routes[key]) {
-      routes[key] = {}
-    }
-    if (!routes[key].middleware) {
-      routes[key].middleware = []
-    }
-    routes[key].middleware.push(middleware)
-    Reflect.defineMetadata(REFLECT_ROUTES_KEY, routes, target.constructor)
-  }
-}
+import { REFLECT_RESOURCE_MIDDLEWARE_KEY } from '../constants.js'
 
 /**
  * The ResourceMiddleware decorator applies middleware to specific resource actions.
@@ -55,6 +27,7 @@ export const RouteMiddleware = (middleware: OneOrMore<MiddlewareFn | ParsedNamed
  * export default class PostsController {
  *   // Only write operations are protected
  * }
+ * ```
  */
 export const ResourceMiddleware = (
   actions: ResourceActionNames | '*' | ResourceActionNames[],

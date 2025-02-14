@@ -5,3 +5,7 @@ export const REFLECT_RESOURCE_KEY = '__girouette_resource__'
 export const REFLECT_RESOURCE_NAME_KEY = '__girouette_resource_name__'
 
 export const REFLECT_RESOURCE_MIDDLEWARE_KEY = '__girouette_resource_middleware__'
+
+export const REFLECT_GROUP_KEY = '__girouette_group__'
+export const REFLECT_GROUP_MIDDLEWARE_KEY = '__girouette_group_middleware__'
+export const REFLECT_GROUP_DOMAIN_KEY = '__girouette_group_domain__'
