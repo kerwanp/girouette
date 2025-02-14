@@ -71,8 +71,7 @@ import { middleware } from '#start/kernel'
 @GroupMiddleware([middleware.auth()]) // Shared middleware
 @GroupDomain('admin.example.com') // Domain restriction
 export default class AdminController {
-  @Get('/dashboard') // Final URL: /admin/dashboard
-  @Name('dashboard')
+  @Get('/dashboard', 'admin.dashboard') // Final URL: /admin/dashboard
   async index() {
     // Route name: admin.dashboard
     // Protected by auth middleware
