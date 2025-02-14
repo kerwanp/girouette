@@ -22,7 +22,11 @@ node ace add @softwarecitadel/girouette
 
 ## Basic Routing
 
-After installation, you can start using decorators to define your routes. Import the decorators you need in your controller:
+After installation, you can start using decorators to define your routes.
+
+By convention, Girouette will scan all files in the `./app` folder, finishing by `_controller.ts`.
+
+Import the decorators you need in your controller:
 
 ```typescript
 import {

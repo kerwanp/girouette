@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import type { ApplicationService, HttpRouterService } from '@adonisjs/core/types'
+import type { ApplicationService, HttpRouterService, LoggerService } from '@adonisjs/core/types'
 import { cwd } from 'node:process'
 import { join } from 'node:path'
 import { readdir } from 'node:fs/promises'
@@ -54,14 +54,23 @@ type GroupMetadata = {
  */
 export default class GirouetteProvider {
   #router: HttpRouterService | null = null
+  #logger: LoggerService | null = null
 
   constructor(protected app: ApplicationService) {}
+
+  /**
+   * Boot the provider when the application is ready
+   */
+  async boot() {
+    // Provider is booted
+  }
 
   /**
    * Starts the provider by initializing the router and registering all routes
    */
   async start() {
     this.#router = await this.app.container.make('router')
+    this.#logger = await this.app.container.make('logger')
     await this.#scanControllersDirectory(join(cwd(), 'app'))
   }
 
@@ -96,21 +105,28 @@ export default class GirouetteProvider {
    * Processes a controller file by importing it and registering its routes
    */
   async #processControllerFile(filePath: string) {
-    const controller = await import(pathToFileURL(filePath).href)
-
-    this.#registerControllerRoutes(controller)
-    this.#registerResourceRoutes(controller)
+    try {
+      const controller = await import(pathToFileURL(filePath).href)
+      this.#registerControllerRoutes(controller)
+      this.#registerResourceRoutes(controller)
+    } catch (error) {
+      this.#logger?.debug({ error }, '[Girouette] Error processing controller file')
+    }
   }
 
   /**
    * Registers all decorated routes from a controller
    */
   #registerControllerRoutes(controller: any) {
-    const routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, controller.default)
-    if (!routes) return
+    try {
+      const routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, controller.default)
+      if (!routes) return
 
-    for (const methodName in routes) {
-      this.#registerSingleRoute(controller, methodName, routes[methodName])
+      for (const methodName in routes) {
+        this.#registerSingleRoute(controller, methodName, routes[methodName])
+      }
+    } catch (error) {
+      this.#logger?.debug({ error }, '[Girouette] Error registering controller routes')
     }
   }
 
@@ -118,21 +134,24 @@ export default class GirouetteProvider {
    * Registers a single route with the AdonisJS router, applying any group configurations
    */
   #registerSingleRoute(controller: any, methodName: string, route: GirouetteRoute) {
-    const group = Reflect.getMetadata(REFLECT_GROUP_KEY, controller.default) as
-      | GroupMetadata
-      | undefined
-    const groupMiddleware = Reflect.getMetadata(
-      REFLECT_GROUP_MIDDLEWARE_KEY,
-      controller.default
-    ) as OneOrMore<MiddlewareFn | ParsedNamedMiddleware> | undefined
-    const groupDomain = Reflect.getMetadata(REFLECT_GROUP_DOMAIN_KEY, controller.default) as
-      | string
-      | undefined
+    try {
+      const group = Reflect.getMetadata(REFLECT_GROUP_KEY, controller.default) as
+        | GroupMetadata
+        | undefined
+      const groupMiddleware = Reflect.getMetadata(
+        REFLECT_GROUP_MIDDLEWARE_KEY,
+        controller.default
+      ) as OneOrMore<MiddlewareFn | ParsedNamedMiddleware> | undefined
+      const groupDomain = Reflect.getMetadata(REFLECT_GROUP_DOMAIN_KEY, controller.default) as
+        | string
+        | undefined
 
-    const finalRoute = this.#applyGroupConfiguration(route, group, groupMiddleware)
-
-    const adonisRoute = this.#createRoute(finalRoute, controller, methodName)
-    this.#configureRoute(adonisRoute, finalRoute, groupDomain)
+      const finalRoute = this.#applyGroupConfiguration(route, group, groupMiddleware)
+      const adonisRoute = this.#createRoute(finalRoute, controller, methodName)
+      this.#configureRoute(adonisRoute, finalRoute, groupDomain)
+    } catch (error) {
+      this.#logger?.debug({ error }, '[Girouette] Error registering single route')
+    }
   }
 
   /**
@@ -227,28 +246,36 @@ export default class GirouetteProvider {
    * Registers resource routes for a controller
    */
   #registerResourceRoutes(controller: any) {
-    const resourcePattern = Reflect.getMetadata(REFLECT_RESOURCE_KEY, controller.default)
-    if (!resourcePattern) return
+    try {
+      const resourcePattern = Reflect.getMetadata(REFLECT_RESOURCE_KEY, controller.default)
+      if (!resourcePattern) return
 
-    const resource = this.#router!.resource(resourcePattern, controller.default)
-    this.#configureResource(resource, controller)
+      const resource = this.#router!.resource(resourcePattern, controller.default)
+      this.#configureResource(resource, controller)
+    } catch (error) {
+      this.#logger?.debug({ error }, '[Girouette] Error registering resource routes')
+    }
   }
 
   /**
    * Configures a resource with its name and middleware
    */
   #configureResource(resource: any, controller: any) {
-    const resourceName = Reflect.getMetadata(REFLECT_RESOURCE_NAME_KEY, controller.default)
-    if (resourceName) {
-      resource.as(resourceName)
-    }
+    try {
+      const resourceName = Reflect.getMetadata(REFLECT_RESOURCE_NAME_KEY, controller.default)
+      if (resourceName) {
+        resource.as(resourceName)
+      }
 
-    const resourceMiddleware = Reflect.getMetadata(
-      REFLECT_RESOURCE_MIDDLEWARE_KEY,
-      controller.default
-    )
-    if (resourceMiddleware) {
-      this.#applyResourceMiddleware(resource, resourceMiddleware)
+      const resourceMiddleware = Reflect.getMetadata(
+        REFLECT_RESOURCE_MIDDLEWARE_KEY,
+        controller.default
+      )
+      if (resourceMiddleware) {
+        this.#applyResourceMiddleware(resource, resourceMiddleware)
+      }
+    } catch (error) {
+      this.#logger?.debug({ error }, '[Girouette] Error configuring resource')
     }
   }
 
