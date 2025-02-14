@@ -2,37 +2,28 @@ import { REFLECT_GROUP_KEY } from '../constants.js'
 import { REFLECT_GROUP_DOMAIN_KEY } from '../constants.js'
 
 /**
- * The Group decorator allows you to define a name prefix for all routes within
- * a controller.
+ * The Group decorator allows you to configure route groups with names and prefixes.
  *
- * @param name Optional name prefix for all routes
+ * @param options Configuration object for the group
  *
  * @example
  * ```ts
- * // With name prefix
- * @Group('admin')
- * export default class AdminController {
- *   @Get('/admin/dashboard')
- *   @Name('dashboard')
- *   index() {
- *     // Route name will be: admin.dashboard
- *   }
- * }
+ * // Using name and prefix
+ * @Group({ name: 'admin', prefix: '/admin' })
+ * export default class AdminController {}
  *
- * // Without name prefix
- * @Group()
- * export default class AdminController {
- *   @Get('/admin/dashboard')
- *   @Name('dashboard')
- *   index() {
- *     // Route name will be: dashboard
- *   }
- * }
+ * // Using just a name
+ * @Group({ name: 'admin' })
+ * export default class AdminController {}
+ *
+ * // Using just a prefix
+ * @Group({ prefix: '/admin' })
+ * export default class AdminController {}
  * ```
  */
-export const Group = (name?: string) => {
+export const Group = (options: { name?: string; prefix?: string }) => {
   return (target: any) => {
-    Reflect.defineMetadata(REFLECT_GROUP_KEY, { name }, target)
+    Reflect.defineMetadata(REFLECT_GROUP_KEY, options, target)
   }
 }
 

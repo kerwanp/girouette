@@ -36,6 +36,7 @@ type GirouetteRoute = {
  */
 type GroupMetadata = {
   name?: string
+  prefix?: string
 }
 
 /**
@@ -166,9 +167,21 @@ export default class GirouetteProvider {
 
     return {
       ...route,
+      pattern: group?.prefix
+        ? this.#prefixRoutePattern(route.pattern, group.prefix)
+        : route.pattern,
       name: group?.name ? this.#prefixRouteName(route.name, group.name) : route.name,
       middleware: this.#mergeMiddleware(route.middleware, groupMiddleware),
     }
+  }
+
+  /**
+   * Prefixes a route pattern with a group prefix
+   */
+  #prefixRoutePattern(pattern: string, prefix: string): string {
+    const cleanPrefix = prefix.startsWith('/') ? prefix : `/${prefix}`
+    const cleanPattern = pattern.startsWith('/') ? pattern.slice(1) : pattern
+    return `${cleanPrefix}/${cleanPattern}`
   }
 
   /**

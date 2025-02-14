@@ -67,11 +67,11 @@ Girouette provides several decorators for grouping routes:
 import { Group, GroupMiddleware, GroupDomain } from '@softwarecitadel/girouette'
 import { middleware } from '#start/kernel'
 
-@Group('admin') // Name prefix for routes
+@Group({ name: 'admin', prefix: '/admin' }) // Name prefix and URL prefix
 @GroupMiddleware([middleware.auth()]) // Shared middleware
 @GroupDomain('admin.example.com') // Domain restriction
 export default class AdminController {
-  @Get('/admin/dashboard')
+  @Get('/dashboard') // Final URL: /admin/dashboard
   @Name('dashboard')
   async index() {
     // Route name: admin.dashboard
@@ -81,19 +81,19 @@ export default class AdminController {
 }
 ```
 
-Each group decorator can be used independently:
+Le décorateur `@Group` accepte un objet de configuration avec les options suivantes :
 
 ```typescript
-// Only name prefix
-@Group('api')
+// Juste un préfixe de nom
+@Group({ name: 'api' })
 export class ApiController {}
 
-// Only middleware
-@GroupMiddleware([middleware.auth()])
-export class SecureController {}
+// Juste un préfixe d'URL
+@Group({ prefix: '/api' })
+export class ApiController {}
 
-// Only domain restriction
-@GroupDomain('api.example.com')
+// Les deux à la fois
+@Group({ name: 'api', prefix: '/api/v1' })
 export class ApiController {}
 ```
 
