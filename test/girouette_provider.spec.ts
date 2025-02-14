@@ -8,7 +8,7 @@ import { HttpRouterService } from '@adonisjs/core/types'
 import { HTTP_METHODS, RESOURCE_METHODS, ResourceRoute, Route } from './utils.js'
 
 test.group('GirouetteProvider', async (group) => {
-  let CONTROLLERS_PATH = join(cwd(), 'test/controllers')
+  let BASE_PATH = join(cwd(), 'test/controllers')
 
   let router: HttpRouterService
 
@@ -25,7 +25,9 @@ test.group('GirouetteProvider', async (group) => {
   })
 
   test('should register "group" routes', async ({ assert }) => {
-    await provider.start(`${CONTROLLERS_PATH}/group`)
+    provider.controllersPath = `${BASE_PATH}/group`
+
+    await provider.start()
 
     const routes: Route[] = router.routes.map((r: any) => r.toJSON())
 
@@ -35,7 +37,9 @@ test.group('GirouetteProvider', async (group) => {
   })
 
   test('should register "group_middleware" routes', async ({ assert }) => {
-    await provider.start(`${CONTROLLERS_PATH}/group_middleware`)
+    provider.controllersPath = `${BASE_PATH}/group_middleware`
+
+    await provider.start()
 
     const routes: Route[] = router.routes.map((r: any) => r.toJSON())
 
@@ -43,7 +47,9 @@ test.group('GirouetteProvider', async (group) => {
   })
 
   test('should register "methods" routes', async ({ assert }) => {
-    await provider.start(`${CONTROLLERS_PATH}/methods`)
+    provider.controllersPath = `${BASE_PATH}/methods`
+
+    await provider.start()
 
     const routes: Route[] = router.routes.map((r: any) => r.toJSON())
 
@@ -53,7 +59,9 @@ test.group('GirouetteProvider', async (group) => {
   })
 
   test('should register "resource" routes', async ({ assert }) => {
-    await provider.start(`${CONTROLLERS_PATH}/resource`)
+    provider.controllersPath = `${BASE_PATH}/resource`
+
+    await provider.start()
 
     const resourceRoute = router.routes[0] as unknown as ResourceRoute
 
@@ -69,7 +77,9 @@ test.group('GirouetteProvider', async (group) => {
   })
 
   test('should register "resource_middleware" routes', async ({ assert }) => {
-    await provider.start(`${CONTROLLERS_PATH}/resource_middleware`)
+    provider.controllersPath = `${BASE_PATH}/resource_middleware`
+
+    await provider.start()
 
     const resourceRoute = router.routes[0] as unknown as ResourceRoute
 
@@ -85,7 +95,9 @@ test.group('GirouetteProvider', async (group) => {
   })
 
   test('should register "route_middleware" routes', async ({ assert }) => {
-    await provider.start(`${CONTROLLERS_PATH}/route_middleware`)
+    provider.controllersPath = `${BASE_PATH}/route_middleware`
+
+    await provider.start()
 
     const routes: Route[] = router.routes.map((r: any) => r.toJSON())
 
@@ -93,7 +105,9 @@ test.group('GirouetteProvider', async (group) => {
   })
 
   test('should register "where" routes', async ({ assert }) => {
-    await provider.start(`${CONTROLLERS_PATH}/where`)
+    provider.controllersPath = `${BASE_PATH}/where`
+
+    await provider.start()
 
     const routes: Route[] = router.routes.map((r: any) => r.toJSON())
 
