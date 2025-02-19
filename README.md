@@ -32,7 +32,7 @@ node ace add @softwarecitadel/girouette
 
 After installation, you can start using decorators to define your routes.
 
-By convention, Girouette will scan all files in the `./app` folder, finishing by `_controller.ts`.
+By convention, Girouette will scan all files in the `./app` folder that end with `_controller.ts`.
 
 Import the decorators you need in your controller:
 
@@ -88,18 +88,18 @@ export default class AdminController {
 }
 ```
 
-Le décorateur `@Group` accepte un objet de configuration avec les options suivantes :
+The `@Group` decorator accepts a configuration object with the following options:
 
 ```typescript
-// Juste un préfixe de nom
+// Just a name prefix
 @Group({ name: 'api' })
 export class ApiController {}
 
-// Juste un préfixe d'URL
+// Just a URL prefix
 @Group({ prefix: '/api' })
 export class ApiController {}
 
-// Les deux à la fois
+// Both at once
 @Group({ name: 'api', prefix: '/api/v1' })
 export class ApiController {}
 ```
