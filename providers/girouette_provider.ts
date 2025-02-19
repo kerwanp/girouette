@@ -56,8 +56,17 @@ type GroupMetadata = {
 export default class GirouetteProvider {
   #router: HttpRouterService | null = null
   #logger: LoggerService | null = null
+  #controllersPath: string = join(cwd(), 'app')
 
   constructor(protected app: ApplicationService) {}
+
+  /**
+   * Sets the path to the controllers
+   */
+
+  set controllersPath(path: string) {
+    this.#controllersPath = path
+  }
 
   /**
    * Boot the provider when the application is ready
@@ -72,7 +81,7 @@ export default class GirouetteProvider {
   async start() {
     this.#router = await this.app.container.make('router')
     this.#logger = await this.app.container.make('logger')
-    await this.#scanControllersDirectory(join(cwd(), 'app'))
+    await this.#scanControllersDirectory(this.#controllersPath)
   }
 
   /**
