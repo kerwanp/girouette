@@ -1,6 +1,6 @@
 <div align="center">
-  <a href="https://discord.gg/UvcuprRbTC">
-    <img src="https://dcbadge.vercel.app/api/server/UvcuprRbTC">
+  <a href="https://discord.gg/9sHEwRUxFk">
+    <img src="https://dcbadge.vercel.app/api/server/9sHEwRUxFk">
   </a>
 </div>
 
