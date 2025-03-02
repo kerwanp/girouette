@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { cwd } from 'node:process'
 import { HttpRouterService } from '@adonisjs/core/types'
 import { HTTP_METHODS, RESOURCE_METHODS, ResourceRoute, Route } from './utils.js'
+import { RouteResource } from '@adonisjs/core/http'
 
 test.group('GirouetteProvider', async (group) => {
   let BASE_PATH = join(cwd(), 'test/controllers')
@@ -92,6 +93,23 @@ test.group('GirouetteProvider', async (group) => {
     const controllerMethods: string[] = routes.map((i) => i.handler.reference[1])
 
     assert.isTrue(controllerMethods.every((r) => RESOURCE_METHODS.includes(r)))
+  })
+
+  test('should register specified "only" resource routes', async ({ assert }) => {
+    provider.controllersPath = `${BASE_PATH}/resource_only`
+
+    await provider.start()
+
+    const resource = router.routes[0] as RouteResource
+    const routes = resource.routes
+
+    assert.isFalse(routes.find((route) => route.getName()?.endsWith('.update'))?.isDeleted())
+    assert.isFalse(routes.find((route) => route.getName()?.endsWith('.destroy'))?.isDeleted())
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.index'))?.isDeleted())
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.store'))?.isDeleted())
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.show'))?.isDeleted())
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.edit'))?.isDeleted())
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.create'))?.isDeleted())
   })
 
   test('should register "route_middleware" routes', async ({ assert }) => {
