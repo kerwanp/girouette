@@ -19,6 +19,7 @@ import {
   REFLECT_GROUP_MIDDLEWARE_KEY,
   REFLECT_GROUP_DOMAIN_KEY,
   REFLECT_RESOURCE_ONLY_KEY,
+  REFLECT_RESOURCE_EXCEPT_KEY,
 } from '../src/constants.js'
 import { RouteResource } from '@adonisjs/core/http'
 
@@ -302,6 +303,11 @@ export default class GirouetteProvider {
       const only = Reflect.getMetadata(REFLECT_RESOURCE_ONLY_KEY, controller.default)
       if (only) {
         resource.only(only)
+      }
+
+      const except = Reflect.getMetadata(REFLECT_RESOURCE_EXCEPT_KEY, controller.default)
+      if (except) {
+        resource.except(except)
       }
     } catch (error) {
       this.#logger?.debug({ error }, '[Girouette] Error configuring resource')

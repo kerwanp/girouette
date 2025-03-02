@@ -112,6 +112,23 @@ test.group('GirouetteProvider', async (group) => {
     assert.isTrue(routes.find((route) => route.getName()?.endsWith('.create'))?.isDeleted())
   })
 
+  test('should not register "except" resource routes', async ({ assert }) => {
+    provider.controllersPath = `${BASE_PATH}/resource_except`
+
+    await provider.start()
+
+    const resource = router.routes[0] as RouteResource
+    const routes = resource.routes
+
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.create'))?.isDeleted())
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.show'))?.isDeleted())
+    assert.isFalse(routes.find((route) => route.getName()?.endsWith('.index'))?.isDeleted())
+    assert.isFalse(routes.find((route) => route.getName()?.endsWith('.store'))?.isDeleted())
+    assert.isFalse(routes.find((route) => route.getName()?.endsWith('.destroy'))?.isDeleted())
+    assert.isFalse(routes.find((route) => route.getName()?.endsWith('.edit'))?.isDeleted())
+    assert.isFalse(routes.find((route) => route.getName()?.endsWith('.update'))?.isDeleted())
+  })
+
   test('should register "route_middleware" routes', async ({ assert }) => {
     provider.controllersPath = `${BASE_PATH}/route_middleware`
 
