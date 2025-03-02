@@ -18,7 +18,11 @@ import {
   REFLECT_GROUP_KEY,
   REFLECT_GROUP_MIDDLEWARE_KEY,
   REFLECT_GROUP_DOMAIN_KEY,
+  REFLECT_RESOURCE_ONLY_KEY,
+  REFLECT_RESOURCE_EXCEPT_KEY,
+  REFLECT_RESOURCE_API_ONLY_KEY,
 } from '../src/constants.js'
+import { RouteResource } from '@adonisjs/core/http'
 
 /**
  * Represents a route configuration within the Girouette system
@@ -282,7 +286,7 @@ export default class GirouetteProvider {
   /**
    * Configures a resource with its name and middleware
    */
-  #configureResource(resource: any, controller: any) {
+  #configureResource(resource: RouteResource, controller: any) {
     try {
       const resourceName = Reflect.getMetadata(REFLECT_RESOURCE_NAME_KEY, controller.default)
       if (resourceName) {
@@ -296,6 +300,8 @@ export default class GirouetteProvider {
       if (resourceMiddleware) {
         this.#applyResourceMiddleware(resource, resourceMiddleware)
       }
+
+      this.#defineResourceActions(resource, controller)
     } catch (error) {
       this.#logger?.debug({ error }, '[Girouette] Error configuring resource')
     }
@@ -307,6 +313,23 @@ export default class GirouetteProvider {
   #applyResourceMiddleware(resource: any, middlewareConfig: any[]) {
     for (const { actions, middleware } of middlewareConfig) {
       resource.middleware(actions, middleware)
+    }
+  }
+
+  #defineResourceActions(resource: any, controller: any) {
+    const apiOnly = Reflect.getMetadata(REFLECT_RESOURCE_API_ONLY_KEY, controller.default)
+    if (apiOnly) {
+      resource.apiOnly()
+    }
+
+    const only = Reflect.getMetadata(REFLECT_RESOURCE_ONLY_KEY, controller.default)
+    if (only) {
+      resource.only(only)
+    }
+
+    const except = Reflect.getMetadata(REFLECT_RESOURCE_EXCEPT_KEY, controller.default)
+    if (except) {
+      resource.except(except)
     }
   }
 }
