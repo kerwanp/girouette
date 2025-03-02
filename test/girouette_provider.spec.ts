@@ -95,6 +95,18 @@ test.group('GirouetteProvider', async (group) => {
     assert.isTrue(controllerMethods.every((r) => RESOURCE_METHODS.includes(r)))
   })
 
+  test('should not register non "api-only" resource routes ', async ({ assert }) => {
+    provider.controllersPath = `${BASE_PATH}/resource_api_only`
+
+    await provider.start()
+
+    const resource = router.routes[0] as RouteResource
+    const routes = resource.routes
+
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.create'))!.isDeleted())
+    assert.isTrue(routes.find((route) => route.getName()?.endsWith('.edit'))!.isDeleted())
+  })
+
   test('should register specified "only" resource routes', async ({ assert }) => {
     provider.controllersPath = `${BASE_PATH}/resource_only`
 

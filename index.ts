@@ -17,5 +17,6 @@ export * from './src/decorators/resource.js'
 export * from './src/decorators/where.js'
 export * from './src/decorators/only.js'
 export * from './src/decorators/except.js'
+export * from './src/decorators/api_only.js'
 
 export { Group, GroupDomain } from './src/decorators/group.js'

@@ -6,6 +6,7 @@ export const REFLECT_RESOURCE_NAME_KEY = '__girouette_resource_name__'
 
 export const REFLECT_RESOURCE_MIDDLEWARE_KEY = '__girouette_resource_middleware__'
 
+export const REFLECT_RESOURCE_API_ONLY_KEY = '__girouette_resource_api_only__'
 export const REFLECT_RESOURCE_ONLY_KEY = '__girouette_resource_only__'
 export const REFLECT_RESOURCE_EXCEPT_KEY = '__girouette_resource_except__'
 
