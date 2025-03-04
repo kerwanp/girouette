@@ -1,4 +1,4 @@
-import { REFLECT_RESOURCE_ONLY_KEY } from '../constants.js'
+import { REFLECT_RESOURCE_API_ONLY_KEY } from '../constants.js'
 
 /**
  * The `@ApiOnly` decorator removes the routes which aren't needed for an API resource.
@@ -20,6 +20,6 @@ import { REFLECT_RESOURCE_ONLY_KEY } from '../constants.js'
  */
 export const ApiOnly = () => {
   return (target: any) => {
-    Reflect.defineMetadata(REFLECT_RESOURCE_ONLY_KEY, true, target)
+    Reflect.defineMetadata(REFLECT_RESOURCE_API_ONLY_KEY, true, target)
   }
 }
