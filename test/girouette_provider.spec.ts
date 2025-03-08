@@ -72,7 +72,9 @@ test.group('GirouetteProvider', async (group) => {
 
     assert.isTrue(routes.every((r) => r.methods.every((m) => HTTP_METHODS.includes(m))))
 
-    const controllerMethods: string[] = routes.map((i) => (i.handler.reference as any).split('.').pop() as string)
+    const controllerMethods: string[] = routes.map(
+      (i) => (i.handler.reference as any).split('.').pop() as string
+    )
     assert.isTrue(controllerMethods.every((r) => RESOURCE_METHODS.includes(r.toLowerCase())))
   })
 
@@ -89,7 +91,9 @@ test.group('GirouetteProvider', async (group) => {
 
     assert.isTrue(routes.every((r) => r.methods.every((m) => HTTP_METHODS.includes(m))))
 
-    const controllerMethods: string[] = routes.map((i) => (i.handler.reference as any).split('.').pop() as string)
+    const controllerMethods: string[] = routes.map(
+      (i) => (i.handler.reference as any).split('.').pop() as string
+    )
     assert.isTrue(controllerMethods.every((r) => RESOURCE_METHODS.includes(r.toLowerCase())))
   })
 
@@ -162,5 +166,4 @@ test.group('GirouetteProvider', async (group) => {
 
     assert.isTrue(new RegExp(slugMatcher).test('333'))
   })
-
 })

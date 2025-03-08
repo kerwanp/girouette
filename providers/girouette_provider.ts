@@ -169,9 +169,10 @@ export default class GirouetteProvider {
         REFLECT_GROUP_MIDDLEWARE_KEY,
         controller.controller.default
       ) as OneOrMore<MiddlewareFn | ParsedNamedMiddleware> | undefined
-      const groupDomain = Reflect.getMetadata(REFLECT_GROUP_DOMAIN_KEY, controller.controller.default) as
-        | string
-        | undefined
+      const groupDomain = Reflect.getMetadata(
+        REFLECT_GROUP_DOMAIN_KEY,
+        controller.controller.default
+      ) as string | undefined
 
       const finalRoute = this.#applyGroupConfiguration(route, group, groupMiddleware)
       const adonisRoute = this.#createRoute(finalRoute, controller, methodName)
@@ -239,7 +240,10 @@ export default class GirouetteProvider {
    * Creates a new route in the AdonisJS router
    */
   #createRoute(route: GirouetteRoute, controller: ControllerToProcess, methodName: string) {
-    const relativePath = relative(this.app.appRoot.pathname, controller.importUrl.pathname).replace(/\.ts$/, '.js')
+    const relativePath = relative(this.app.appRoot.pathname, controller.importUrl.pathname).replace(
+      /\.ts$/,
+      '.js'
+    )
     return this.#router!.route(route.pattern, [route.method], `./${relativePath}.${methodName}`)
   }
 
@@ -287,10 +291,16 @@ export default class GirouetteProvider {
    */
   #registerResourceRoutes(controller: ControllerToProcess) {
     try {
-      const resourcePattern = Reflect.getMetadata(REFLECT_RESOURCE_KEY, controller.controller.default)
+      const resourcePattern = Reflect.getMetadata(
+        REFLECT_RESOURCE_KEY,
+        controller.controller.default
+      )
       if (!resourcePattern) return
 
-      const relativePath = relative(this.app.appRoot.pathname, controller.importUrl.pathname).replace(/\.ts$/, '.js')
+      const relativePath = relative(
+        this.app.appRoot.pathname,
+        controller.importUrl.pathname
+      ).replace(/\.ts$/, '.js')
       const resource = this.#router!.resource(resourcePattern, `./${relativePath}`)
       this.#configureResource(resource, controller)
     } catch (error) {
@@ -303,7 +313,10 @@ export default class GirouetteProvider {
    */
   #configureResource(resource: RouteResource, controller: ControllerToProcess) {
     try {
-      const resourceName = Reflect.getMetadata(REFLECT_RESOURCE_NAME_KEY, controller.controller.default)
+      const resourceName = Reflect.getMetadata(
+        REFLECT_RESOURCE_NAME_KEY,
+        controller.controller.default
+      )
       if (resourceName) {
         resource.as(resourceName)
       }
@@ -332,7 +345,10 @@ export default class GirouetteProvider {
   }
 
   #defineResourceActions(resource: any, controller: ControllerToProcess) {
-    const apiOnly = Reflect.getMetadata(REFLECT_RESOURCE_API_ONLY_KEY, controller.controller.default)
+    const apiOnly = Reflect.getMetadata(
+      REFLECT_RESOURCE_API_ONLY_KEY,
+      controller.controller.default
+    )
     if (apiOnly) {
       resource.apiOnly()
     }
