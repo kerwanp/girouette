@@ -1,7 +1,7 @@
-![Statements](https://img.shields.io/badge/statements-98.07%25-brightgreen.svg?style=flat)
-![Branches](https://img.shields.io/badge/branches-90.8%25-brightgreen.svg?style=flat)
+![Statements](https://img.shields.io/badge/statements-98.17%25-brightgreen.svg?style=flat)
+![Branches](https://img.shields.io/badge/branches-91.3%25-brightgreen.svg?style=flat)
 ![Functions](https://img.shields.io/badge/functions-96.96%25-brightgreen.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-98.07%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-98.17%25-brightgreen.svg?style=flat)
 
 # Girouette
 
@@ -119,7 +119,7 @@ For RESTful resources, Girouette provides a `Resource` decorator that automatica
 ```typescript
 import { Resource } from '@adonisjs-community/girouette'
 
-@Resource('/posts', 'posts')
+@Resource({pattern: '/posts', name: 'blog.posts'})
 export default class PostsController {
   async index() {} // GET /posts
   async create() {} // GET /posts/create
@@ -128,6 +128,25 @@ export default class PostsController {
   async edit() {} // GET /posts/:id/edit
   async update() {} // PUT/PATCH /posts/:id
   async destroy() {} // DELETE /posts/:id
+}
+```
+
+<br>
+
+You can also rename the resource parameters:
+
+```typescript
+import { Resource } from '@adonisjs-community/girouette'
+
+@Resource({ pattern: '/articles', params: { article: 'slug' } })
+export default class ArticlesController {
+  async index() {} // GET /articles
+  async create() {} // GET /articles/create
+  async store() {} // POST /articles
+  async show({ params }: HttpContext) {} // GET /articles/:slug
+  async edit({ params }: HttpContext) {} // GET /articles/:slug/edit
+  async update({ params }: HttpContext) {} // PUT/PATCH /articles/:slug
+  async destroy({ params }: HttpContext) {} // DELETE /articles/:slug
 }
 ```
 
@@ -164,9 +183,15 @@ export default class PostsController {
 - `@GroupDomain(domain: string)` - Restrict routes to a specific domain
 - `@GroupMiddleware(middleware: Middleware[])` - Apply middleware to all routes
 - `@Middleware(middleware: Middleware[])` - Apply middleware to a single route
-- `@Resource(pattern: string, name?: string)` - Create RESTful resource routes
+- `@Resource({pattern: string, name?: string, params?: { [resource: string]: string } })` - Create RESTful resource routes
 - `@ResourceMiddleware(actions: string | string[], middleware: Middleware[])` - Apply middleware to resource actions
 - `@Where(param: string, matcher: string | RegExp | Function)` - Add route parameter constraints
+
+### Resource Actions
+
+- `@Pick(actions: string | string[])` - Include only specified actions in a resource
+- `@Except(actions: string | string[])` - Exclude specified actions from a resource
+- `@ApiOnly()` - Include only API actions in a resource (index, show, store, update, destroy)
 
 ## Advanced Usage
 
@@ -203,6 +228,41 @@ export default class AdminPostsController {
   // Only store, update, and destroy methods are protected
 }
 ```
+
+### Resource Actions Picking
+
+You can pick specific actions to include or exclude using `@Pick`, `@Except`or `@ApiOnly`:
+
+```typescript
+import { Resource, Except } from '@adonisjs-community/girouette'
+
+@Resource({ pattern: '/products', name: 'shop.products', actions: ['index', 'show'] })
+@Except(['create', 'store', 'edit', 'update', 'destroy'])
+export default class ProductsController {
+  async index() {} // GET /products
+  async show({ params }: HttpContext) {} // GET /products/:id
+  // create, store, edit, update, destroy are excluded
+}
+```
+
+```typescript
+import { Resource, Except } from '@adonisjs-community/girouette'
+
+@Resource({ pattern: '/products', name: 'shop.products', actions: ['index', 'show'] })
+@ApiOnly()
+export default class ProductsController {
+  async index() {}
+  async show() {}
+  async store() {}
+  async update() {}
+  async destroy() {}
+  // 'create' and 'edit' are automatically excluded, as they are not part of 
+  // API actions but are only used for web form rendering purposes
+}
+```
+
+## Note regarding [TC39 experimental decorators](https://github.com/microsoft/TypeScript/issues/57533#issuecomment-2762543664)
+We're well aware about the uncertain future of **TC39 decorators**, which are still in experimental phase, but we are closely following the AdonisJS team's position on this topic. As of now, AdonisJS v6 is still using the experimental decorators proposal, and Girouette is built to work seamlessly with it. 
 
 ## License
 

@@ -21,6 +21,7 @@ import {
   REFLECT_RESOURCE_ONLY_KEY,
   REFLECT_RESOURCE_EXCEPT_KEY,
   REFLECT_RESOURCE_API_ONLY_KEY,
+  REFLECT_RESOURCE_PARAMS_KEY,
 } from '../src/constants.js'
 import { RouteResource } from '@adonisjs/core/http'
 
@@ -317,6 +318,14 @@ export default class GirouetteProvider {
       )
       if (resourceName) {
         resource.as(resourceName)
+      }
+
+      const resourceParams = Reflect.getMetadata(
+        REFLECT_RESOURCE_PARAMS_KEY,
+        controller.controller.default
+      )
+      if (resourceParams) {
+        resource.params(resourceParams)
       }
 
       const resourceMiddleware = Reflect.getMetadata(
