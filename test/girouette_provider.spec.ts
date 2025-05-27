@@ -78,6 +78,20 @@ test.group('GirouetteProvider', async (group) => {
     assert.isTrue(controllerMethods.every((r) => RESOURCE_METHODS.includes(r.toLowerCase())))
   })
 
+  test('should rename "resource" params', async ({ assert }) => {
+    provider.controllersPath = `${BASE_PATH}/resource_params`
+
+    await provider.start()
+
+    const resourceRoute = router.routes[0] as unknown as ResourceRoute
+
+    const routes: Route[] = resourceRoute.routes.map((r: any) => r.toJSON())
+    const routesWithParams = routes.filter((r) => r.pattern.includes(':'))
+
+    assert.isTrue(routesWithParams.every((r) => r.pattern.startsWith('/posts')))
+    assert.isTrue(routesWithParams.every((r) => r.pattern.includes(':post')))
+  })
+
   test('should register "resource_middleware" routes', async ({ assert }) => {
     provider.controllersPath = `${BASE_PATH}/resource_middleware`
 
