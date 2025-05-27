@@ -1,5 +1,5 @@
 {
-  "name": "@softwarecitadel/girouette",
+  "name": "@adonisjs-community/girouette",
   "description": "An AdonisJS package allowing decorators-based routing.",
   "version": "0.0.14",
   "engines": {

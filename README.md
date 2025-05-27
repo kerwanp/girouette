@@ -25,7 +25,7 @@ Girouette provides a beautiful, fluent API for defining your AdonisJS routes usi
 You can install Girouette via the AdonisJS CLI:
 
 ```bash
-node ace add @softwarecitadel/girouette
+node ace add @adonisjs-community/girouette
 ```
 
 ## Basic Routing
@@ -51,7 +51,7 @@ import {
   Where,
   Group,
   GroupDomain,
-} from '@softwarecitadel/girouette'
+} from '@adonisjs-community/girouette'
 import { HttpContext } from '@adonisjs/core/http'
 
 export default class UsersController {
@@ -72,7 +72,7 @@ export default class UsersController {
 Girouette provides several decorators for grouping routes:
 
 ```typescript
-import { Group, GroupMiddleware, GroupDomain } from '@softwarecitadel/girouette'
+import { Group, GroupMiddleware, GroupDomain } from '@adonisjs-community/girouette'
 import { middleware } from '#start/kernel'
 
 @Group({ name: 'admin', prefix: '/admin' }) // Name prefix and URL prefix
@@ -109,7 +109,7 @@ export class ApiController {}
 You can protect your routes using middleware through the `Middleware` decorator:
 
 ```typescript
-import { Get, Middleware } from '@softwarecitadel/girouette'
+import { Get, Middleware } from '@adonisjs-community/girouette'
 import { middleware } from '#start/kernel'
 
 export default class UsersController {
@@ -126,7 +126,7 @@ export default class UsersController {
 For RESTful resources, Girouette provides a `Resource` decorator that automatically defines conventional routes:
 
 ```typescript
-import { Resource } from '@softwarecitadel/girouette'
+import { Resource } from '@adonisjs-community/girouette'
 
 @Resource('/posts', 'posts')
 export default class PostsController {
@@ -145,7 +145,7 @@ export default class PostsController {
 Use the `Where` decorator to add constraints to your route parameters:
 
 ```typescript
-import { Get, Where } from '@softwarecitadel/girouette'
+import { Get, Where } from '@adonisjs-community/girouette'
 
 export default class PostsController {
   @Get('/posts/:slug')
@@ -184,7 +184,7 @@ export default class PostsController {
 Decorators can be combined to create sophisticated routing configurations:
 
 ```typescript
-import { Get, Middleware, Where } from '@softwarecitadel/girouette'
+import { Get, Middleware, Where } from '@adonisjs-community/girouette'
 import { middleware } from '#start/kernel'
 
 @Group('/api')
@@ -203,7 +203,7 @@ export default class ArticlesController {
 Apply middleware to specific resource actions:
 
 ```typescript
-import { Resource, ResourceMiddleware } from '@softwarecitadel/girouette'
+import { Resource, ResourceMiddleware } from '@adonisjs-community/girouette'
 import { middleware } from '#start/kernel'
 
 @Resource('/admin/posts', 'admin.posts')

@@ -240,10 +240,9 @@ export default class GirouetteProvider {
    * Creates a new route in the AdonisJS router
    */
   #createRoute(route: GirouetteRoute, controller: ControllerToProcess, methodName: string) {
-    const relativePath = relative(this.app.appRoot.pathname, controller.importUrl.pathname).replaceAll('\\', '/').replace(
-      /\.ts$/,
-      '.js'
-    )
+    const relativePath = relative(this.app.appRoot.pathname, controller.importUrl.pathname)
+      .replaceAll('\\', '/')
+      .replace(/\.ts$/, '.js')
     return this.#router!.route(route.pattern, [route.method], `./${relativePath}.${methodName}`)
   }
 
@@ -297,10 +296,9 @@ export default class GirouetteProvider {
       )
       if (!resourcePattern) return
 
-      const relativePath = relative(
-        this.app.appRoot.pathname,
-        controller.importUrl.pathname
-      ).replaceAll('\\', '/').replace(/\.ts$/, '.js')
+      const relativePath = relative(this.app.appRoot.pathname, controller.importUrl.pathname)
+        .replaceAll('\\', '/')
+        .replace(/\.ts$/, '.js')
       const resource = this.#router!.resource(resourcePattern, `./${relativePath}`)
       this.#configureResource(resource, controller)
     } catch (error) {

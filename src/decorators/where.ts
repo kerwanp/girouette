@@ -12,7 +12,7 @@ import { REFLECT_ROUTES_KEY } from '../constants.js'
  *
  * @example
  * // In an AdonisJS v6 controller:
- * import { Where } from '@softwarecitadel/girouette'
+ * import { Where } from '@adonisjs-community/girouette'
  *
  * class UsersController {
  *   @Get('/users/:id')
@@ -24,7 +24,7 @@ import { REFLECT_ROUTES_KEY } from '../constants.js'
  *
  * @example
  * // Using a custom RouteMatcher function:
- * import { Where } from '@softwarecitadel/girouette'
+ * import { Where } from '@adonisjs-community/girouette'
  *
  * class PostsController {
  *   @Get('/posts/:slug')

@@ -17,6 +17,6 @@ import ConfigureCommand from '@adonisjs/core/commands/configure'
 export async function configure(command: ConfigureCommand) {
   const codemods = await command.createCodemods()
   await codemods.updateRcFile((rcFile) => {
-    rcFile.addProvider('@softwarecitadel/girouette/girouette_provider')
+    rcFile.addProvider('@adonisjs-community/girouette/girouette_provider')
   })
 }
