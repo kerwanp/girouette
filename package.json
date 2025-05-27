@@ -28,7 +28,7 @@
     "test": "c8 --include=src --include=providers --reporter=json-summary npm run quick:test && istanbul-badges-readme",
     "prebuild": "npm run lint && npm run clean",
     "build": "tsc",
-    "release": "np",
+    "release": "release-it",
     "version": "npm run build",
     "prepublishOnly": "npm run build"
   },
@@ -49,6 +49,7 @@
     "istanbul-badges-readme": "^1.9.0",
     "np": "^10.0.6",
     "prettier": "^3.3.2",
+    "release-it": "^19.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },

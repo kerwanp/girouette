@@ -7,10 +7,10 @@
 </br>
 </br>
 
-![Statements](https://img.shields.io/badge/statements-97.68%25-brightgreen.svg?style=flat)
-![Branches](https://img.shields.io/badge/branches-89.87%25-yellow.svg?style=flat)
-![Functions](https://img.shields.io/badge/functions-96.55%25-brightgreen.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-97.68%25-brightgreen.svg?style=flat)
+![Statements](https://img.shields.io/badge/statements-98.07%25-brightgreen.svg?style=flat)
+![Branches](https://img.shields.io/badge/branches-90.8%25-brightgreen.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-96.96%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-98.07%25-brightgreen.svg?style=flat)
 
 # Girouette
 
