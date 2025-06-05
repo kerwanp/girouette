@@ -222,7 +222,7 @@ Apply middleware to specific resource actions:
 import { Resource, ResourceMiddleware } from '@adonisjs-community/girouette'
 import { middleware } from '#start/kernel'
 
-@Resource('/admin/posts', 'admin.posts')
+@Resource({ pattern: '/admin/posts', name: 'admin.posts' })
 @ResourceMiddleware(['store', 'update', 'destroy'], [middleware.auth()])
 export default class AdminPostsController {
   // Only store, update, and destroy methods are protected
