@@ -236,7 +236,7 @@ You can pick specific actions to include or exclude using `@Pick`, `@Except`or `
 ```typescript
 import { Resource, Except } from '@adonisjs-community/girouette'
 
-@Resource({ pattern: '/products', name: 'shop.products', actions: ['index', 'show'] })
+@Resource({ pattern: '/products', name: 'shop.products' })
 @Except(['create', 'store', 'edit', 'update', 'destroy'])
 export default class ProductsController {
   async index() {} // GET /products
@@ -248,7 +248,7 @@ export default class ProductsController {
 ```typescript
 import { Resource, Except } from '@adonisjs-community/girouette'
 
-@Resource({ pattern: '/products', name: 'shop.products', actions: ['index', 'show'] })
+@Resource({ pattern: '/products', name: 'shop.products' })
 @ApiOnly()
 export default class ProductsController {
   async index() {}
